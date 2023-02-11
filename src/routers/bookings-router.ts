@@ -5,6 +5,7 @@ import { postBooking } from "@/controllers/booking-controller";
 const bookingsRouter = Router();
 
 bookingsRouter
-  .post("/", postBooking)
+  .get("/")
+  .post("/booking", postBooking)
 
 export { bookingsRouter };

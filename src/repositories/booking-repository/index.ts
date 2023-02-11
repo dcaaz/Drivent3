@@ -27,11 +27,9 @@ async function findManyBooking(roomId: number){
 
   async function findUserId(userId: number) {
     return await prisma.booking.findFirst({
-      where: { userId },
-      select: { 
-        id: true,
-        Room: true 
-      },
+      where: { 
+        userId 
+      }
     });
   }
 

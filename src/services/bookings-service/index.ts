@@ -25,11 +25,36 @@ async function createBookingRoom(userId:number, roomId: number){
     throw notFoundError();
   }
 
-  await bookingRepository.createBooking(+userId, +roomId)
+  const booking = await bookingRepository.createBooking(userId, roomId)
+
+  return booking
+}
+
+async function findBookingRoom(userId: number){
+  const enrollment = await enrollmentRepository.findUserId(userId);
+
+  if(!enrollment){
+    throw notFoundError();
+  }
+
+  const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
+
+  if(!ticket){
+    throw notFoundError();
+  }
+
+  const data = await bookingRepository.findUserId(userId);
+
+  if(!data){
+    throw notFoundError();
+  }
+
+  return data;
 }
 
 const bookingService = {
-    createBookingRoom
+    createBookingRoom,
+    findBookingRoom
 }
 
 export default bookingService;

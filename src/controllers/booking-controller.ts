@@ -8,8 +8,9 @@ export async function postBooking(req: AuthenticatedRequest, res: Response) {
     const { roomId } = req.body;
 
     try {
-        await bookingService.createBookingRoom(userId, roomId);
-        res.sendStatus(httpStatus.OK)
+        const booking = await bookingService.createBookingRoom(userId, roomId);
+        res.status(httpStatus.OK).send(booking.roomId);
+
     } catch (error) {
         if (error.name === "NotFoundError") {
             return res.sendStatus(httpStatus.NOT_FOUND);
@@ -23,3 +24,19 @@ export async function postBooking(req: AuthenticatedRequest, res: Response) {
     }
 
 }
+
+export async function getBooking(req: AuthenticatedRequest, res: Response){
+    const { userId } = req;
+  
+    try{
+      const data = await bookingService.findBookingRoom(userId);
+      res.status(httpStatus.OK).send(data);
+  
+    } catch (error) {
+      if (error.name === "NotFoundError") {
+        return res.sendStatus(httpStatus.NOT_FOUND);
+      }
+  
+      return res.sendStatus(httpStatus.BAD_REQUEST);
+    }
+  }
