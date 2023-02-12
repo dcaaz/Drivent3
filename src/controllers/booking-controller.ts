@@ -3,6 +3,22 @@ import { AuthenticatedRequest } from "@/middlewares";
 import httpStatus from "http-status";
 import bookingService from "@/services/bookings-service";
 
+export async function getBooking(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+
+  try {
+    const data = await bookingService.findBookingRoom(userId);
+    res.status(httpStatus.OK).send(data);
+
+  } catch (error) {
+    if (error.name === "NotFoundError") {
+      return res.sendStatus(httpStatus.NOT_FOUND);
+    }
+
+    return res.sendStatus(httpStatus.BAD_REQUEST);
+  }
+}
+
 export async function postBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const { roomId } = req.body;
@@ -23,22 +39,6 @@ export async function postBooking(req: AuthenticatedRequest, res: Response) {
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 
-}
-
-export async function getBooking(req: AuthenticatedRequest, res: Response) {
-  const { userId } = req;
-
-  try {
-    const data = await bookingService.findBookingRoom(userId);
-    res.status(httpStatus.OK).send(data);
-
-  } catch (error) {
-    if (error.name === "NotFoundError") {
-      return res.sendStatus(httpStatus.NOT_FOUND);
-    }
-
-    return res.sendStatus(httpStatus.BAD_REQUEST);
-  }
 }
 
 export async function putBooking(req: AuthenticatedRequest, res: Response) {
