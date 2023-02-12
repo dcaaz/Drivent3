@@ -10,7 +10,7 @@ async function createBookingRoom(userId:number, roomId: number){
     throw notFoundError();
   }
 
-  //ver como avaliar capacidade do quarto
+  //TO DO: ver como avaliar capacidade do quarto
   const enrollment = await enrollmentRepository.findById(userId);
 
   if (!enrollment) {
@@ -52,9 +52,33 @@ async function findBookingRoom(userId: number){
   return data;
 }
 
+async function updateBookingRoom(userId: number, roomId: number, bookingId: number,){
+  
+  if(!roomId){
+    throw notFoundError();
+  }
+
+  const enrollment = await enrollmentRepository.findById(userId);
+
+  if (!enrollment) {
+    throw notFoundError();
+  }
+
+  const bookingExists = await bookingRepository.findUserByBooking(+bookingId, +userId);
+
+  if(!bookingExists){
+    throw noVacancyInTheRoom();
+  }
+
+  const data = await bookingRepository.updateRoom(bookingId, roomId);
+
+  return data;
+}
+
 const bookingService = {
     createBookingRoom,
-    findBookingRoom
+    findBookingRoom,
+    updateBookingRoom
 }
 
 export default bookingService;
