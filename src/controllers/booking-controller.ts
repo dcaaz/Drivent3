@@ -8,13 +8,11 @@ export async function getBooking(req: AuthenticatedRequest, res: Response) {
 
   try {
     const data = await bookingService.findBookingRoom(userId);
-    res.status(httpStatus.OK).send(data);
-  } catch (error) {
-    if (error.name === "NotFoundError") {
-      return res.sendStatus(httpStatus.NOT_FOUND);
-    }
 
-    return res.sendStatus(httpStatus.BAD_REQUEST);
+    const room = { id: data.id, room: data.roomId };
+    return res.status(httpStatus.OK).send(room);
+  } catch (error) {
+    return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
 
@@ -23,17 +21,15 @@ export async function postBooking(req: AuthenticatedRequest, res: Response) {
   const { roomId } = req.body;
 
   try {
-    const bookingId = await bookingService.createBookingRoom(userId, roomId);
-    res.status(httpStatus.OK).send(bookingId);
+    const data = await bookingService.createBookingRoom(userId, roomId);
+    const id = data.id;
+    res.status(httpStatus.OK).send({ roomId: id });
   } catch (error) {
     if (error.name === "NotFoundError") {
       return res.sendStatus(httpStatus.NOT_FOUND);
-    }
-
-    if (error.name === "Forbidden") {
+    } else if (error.name === "Forbidden") {
       return res.sendStatus(httpStatus.FORBIDDEN);
     }
-
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
@@ -45,15 +41,16 @@ export async function putBooking(req: AuthenticatedRequest, res: Response) {
 
   try {
     const data = await bookingService.updateBookingRoom(userId, roomId, Number(bookingId));
-    res.status(httpStatus.OK).send(data.id);
+    res.status(httpStatus.OK).send({ bookingId: data.id });
   } catch (error) {
     if (error.name === "NotFoundError") {
       return res.sendStatus(httpStatus.NOT_FOUND);
     }
+
     if (error.name === "Forbidden") {
       return res.sendStatus(httpStatus.FORBIDDEN);
     }
-    
+
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }

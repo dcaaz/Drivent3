@@ -22,7 +22,7 @@ async function findBookingRoom(userId: number) {
     throw notFoundError();
   }
 
-  return data.id;
+  return data;
 }
 
 async function createBookingRoom(userId: number, roomId: number) {
@@ -30,8 +30,7 @@ async function createBookingRoom(userId: number, roomId: number) {
     throw notFoundError();
   }
 
-  //TO DO: ver como avaliar capacidade do quarto
-  const enrollment = await enrollmentRepository.findById(userId);
+  const enrollment = await enrollmentRepository.findUserId(userId);
 
   if (!enrollment) {
     throw Forbidden();
@@ -44,20 +43,25 @@ async function createBookingRoom(userId: number, roomId: number) {
   }
 
   if (ticket.TicketType.isRemote || !ticket.TicketType.includesHotel || ticket.status !== "PAID") {
+    throw Forbidden();
+  }
+
+  const capacity = await bookingRepository.findBookingRoom(roomId);
+
+  if (!capacity) {
+    throw notFoundError();
+  }
+
+  if (capacity.Booking.length === capacity.capacity) {
     throw Forbidden();
   }
 
   const booking = await bookingRepository.createBooking(userId, roomId);
-
   return booking;
 }
 
-async function updateBookingRoom(userId: number, roomId: number, bookingId: number,) {
-  if (!roomId) {
-    throw notFoundError();
-  }
-
-  const enrollment = await enrollmentRepository.findById(userId);
+async function updateBookingRoom(userId: number, roomId: number, bookingId: number) {
+  const enrollment = await enrollmentRepository.findUserId(userId);
 
   if (!enrollment) {
     throw Forbidden();
@@ -73,7 +77,17 @@ async function updateBookingRoom(userId: number, roomId: number, bookingId: numb
     throw Forbidden();
   }
 
-  const bookingExists = await bookingRepository.findUserByBooking(+bookingId, +userId);
+  const capacity = await bookingRepository.findBookingRoom(roomId);
+
+  if (!capacity) {
+    throw notFoundError();
+  }
+
+  if (capacity.Booking.length === capacity.capacity) {
+    throw Forbidden();
+  }
+
+  const bookingExists = await bookingRepository.findUserByBooking(bookingId, userId);
 
   if (!bookingExists) {
     throw Forbidden();
