@@ -56,12 +56,12 @@ async function ticketProcessPayment(ticketId: number) {
   });
 }
 
-async function findOneTickeType(ticketTypeId: number){
+async function findOneTickeType(ticketTypeId: number) {
   return prisma.ticketType.findFirst({
-    where:{
+    where: {
       id: ticketTypeId
     }
-  })
+  });
 }
 
 export type CreateTicketParams = Omit<Ticket, "id" | "createdAt" | "updatedAt">
